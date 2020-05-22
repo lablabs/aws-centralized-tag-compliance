@@ -19,6 +19,7 @@ As of now, these are the alternative ways to achieve the same goal using AWS man
 ## Features
 
 - Slack notifications about noncompliant resources.
+- Supported AWS resources: EC2:Instance, S3:Bucket, DynamoDB:Table, ElastiCache:Node, ElasticLoadBalancing:Loadbalancer, RDS:Cluster, SQS:Queue, ElasticSearch:Cluster
 
 ## Prerequisites
 
@@ -27,6 +28,36 @@ As of now, these are the alternative ways to achieve the same goal using AWS man
 ## Contributing and reporting issues
 
 Feel free to create an issue in this repository if you have questions, suggestions or feature requests.
+
+## Usage
+
+Set the following Environment Variables:
+
+* SLACK_URL
+* SLACK_CHANNEL
+* SLACK_USERNAME
+* SLACK_EMOJI
+* REQUIRED_TAGS
+
+REQUIRED_TAGS example:
+```
+[
+    {
+        "key": "environment",
+        "values": ["prod", "dev", "test", "staging", "prod-cn", "sandbox"]
+    },
+    {
+        "key": "project",
+        "values": ["*"]
+    },
+    {
+        "key": "service",
+        "values": ["*"]
+    }
+]
+```
+
+Run the docker image.
 
 ## License
 
