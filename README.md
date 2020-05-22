@@ -8,7 +8,7 @@ We help companies build, run, deploy and scale software and infrastructure by em
 
 ## Description
 
-A simple python script which helps with enforcing centralized tag compliance.
+A simple python script which helps with enforcing centralized tag compliance on AWS.
 
 As of now, these are the alternative ways to achieve the same goal using AWS managed services:
 
