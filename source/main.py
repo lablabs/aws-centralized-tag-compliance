@@ -16,7 +16,21 @@ SLACK_CHANNEL = os.environ['SLACK_CHANNEL']
 SLACK_USERNAME = os.environ['SLACK_USERNAME']
 SLACK_EMOJI = os.environ['SLACK_EMOJI']
 
+ENABLE_EC2_Instance = os.getenv('ENABLE_EC2_Instance', 'True')
+ENABLE_S3_Bucket = os.getenv('ENABLE_S3_Bucket', 'True')
+ENABLE_DynamoDB_Table = os.getenv('ENABLE_DynamoDB_Table', 'True')
+ENABLE_ElastiCache_Node = os.getenv('ENABLE_ElastiCache_Node', 'True')
+ENABLE_ElasticLoadBalancing_Loadbalancer = os.getenv('ENABLE_ElasticLoadBalancing_Loadbalancer', 'True')
+ENABLE_RDS_Cluster = os.getenv('ENABLE_RDS_Cluster', 'True')
+ENABLE_SQS_Queue = os.getenv('ENABLE_SQS_Queue', 'True')
+ENABLE_ElasticSearch_Cluster = os.getenv('ENABLE_ElasticSearch_Cluster', 'True')
+
+ENABLE_Slack_Notifications = os.getenv('ENABLE_Slack_Notifications', 'True')
+
 REQUIRED_TAGS=json.loads(REQUIRED_TAGS_JSON)
+
+def str2bool(v):
+  return v.lower() in ("yes", "true", "True", "t", "1")
 
 def get_ec2_instance_resources():
     resource = boto3.resource('ec2')
@@ -241,54 +255,63 @@ def notify_slack(resource):
     data = urllib.parse.urlencode({"payload": json.dumps(payload)}).encode("utf-8")
     req = urllib.request.Request(SLACK_URL)
 
-    logging.info("Sending Slack message: " + str(payload))
-    try:
-        result = urllib.request.urlopen(req, data)
-        return json.dumps({"code": result.getcode(), "info": result.info().as_string()})
-    except HTTPError as e:
-        logging.error("{}: result".format(e))
-        return json.dumps({"code": e.getcode(), "info": e.info().as_string()})
+    if str2bool(ENABLE_Slack_Notifications):
+        logging.info("Sending Slack message: " + str(payload))
+        try:
+            result = urllib.request.urlopen(req, data)
+            return json.dumps({"code": result.getcode(), "info": result.info().as_string()})
+        except HTTPError as e:
+            logging.error("{}: result".format(e))
+            return json.dumps({"code": e.getcode(), "info": e.info().as_string()})
 
 def main():
     # EC2:Instance
-    for r in get_ec2_instance_resources():
-        if not verify_tags_on_resource(r,REQUIRED_TAGS):
-            notify_slack(r)
+    if str2bool(ENABLE_EC2_Instance):
+        for r in get_ec2_instance_resources():
+            if not verify_tags_on_resource(r,REQUIRED_TAGS):
+                notify_slack(r)
 
     # S3:Bucket
-    for r in get_s3_bucket_resources():
-        if not verify_tags_on_resource(r,REQUIRED_TAGS):
-            notify_slack(r)
+    if str2bool(ENABLE_S3_Bucket):
+        for r in get_s3_bucket_resources():
+            if not verify_tags_on_resource(r,REQUIRED_TAGS):
+                notify_slack(r)
 
     # DynamoDB:Table
-    for r in get_dynamodb_table_resources():
-        if not verify_tags_on_resource(r,REQUIRED_TAGS):
-            notify_slack(r)
+    if str2bool(ENABLE_DynamoDB_Table):
+        for r in get_dynamodb_table_resources():
+            if not verify_tags_on_resource(r,REQUIRED_TAGS):
+                notify_slack(r)
 
     # ElastiCache:Node
-    for r in get_elasticache_node_resources():
-        if not verify_tags_on_resource(r,REQUIRED_TAGS):
-            notify_slack(r)
+    if str2bool(ENABLE_ElastiCache_Node):
+        for r in get_elasticache_node_resources():
+            if not verify_tags_on_resource(r,REQUIRED_TAGS):
+                notify_slack(r)
 
     # ElasticLoadBalancing:Loadbalancer
-    for r in get_elb_loadbalancer_resources():
-        if not verify_tags_on_resource(r,REQUIRED_TAGS):
-            notify_slack(r)
+    if str2bool(ENABLE_ElasticLoadBalancing_Loadbalancer):
+        for r in get_elb_loadbalancer_resources():
+            if not verify_tags_on_resource(r,REQUIRED_TAGS):
+                notify_slack(r)
 
     # RDS:Cluster
-    for r in get_rds_cluster_resources():
-        if not verify_tags_on_resource(r,REQUIRED_TAGS):
-            notify_slack(r)
+    if str2bool(ENABLE_RDS_Cluster):
+        for r in get_rds_cluster_resources():
+            if not verify_tags_on_resource(r,REQUIRED_TAGS):
+                notify_slack(r)
 
     # SQS:Queue
-    for r in get_sqs_queue_resources():
-        if not verify_tags_on_resource(r,REQUIRED_TAGS):
-            notify_slack(r)
+    if str2bool(ENABLE_SQS_Queue):
+        for r in get_sqs_queue_resources():
+            if not verify_tags_on_resource(r,REQUIRED_TAGS):
+                notify_slack(r)
 
     # ElasticSearch:Cluster
-    for r in get_elasticsearch_cluster_resources():
-        if not verify_tags_on_resource(r,REQUIRED_TAGS):
-            notify_slack(r)
+    if str2bool(ENABLE_ElasticSearch_Cluster):
+        for r in get_elasticsearch_cluster_resources():
+            if not verify_tags_on_resource(r,REQUIRED_TAGS):
+                notify_slack(r)
 
 if __name__ == "__main__":
     main()
