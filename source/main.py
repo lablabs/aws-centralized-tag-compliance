@@ -112,9 +112,9 @@ def get_sqs_queue_resources():
     queues = []
 
     logging.info("Getting SQS:Queue resources")
-    queues = sqs.list_queues()
-    if 'QueueUrls' in queues:
-        for queue in queues['QueueUrls']:
+    list_queues = sqs.list_queues()
+    if 'QueueUrls' in list_queues:
+        for queue in list_queues['QueueUrls']:
             tags = []
             sqs_response = []
             try:
