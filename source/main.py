@@ -52,8 +52,8 @@ def get_dynamodb_table_resources():
         tags = []
         try:
             tags = dynamodb.list_tags_of_resource(ResourceArn=table.table_arn)['Tags']
-        except ClientError:
-            pass
+        except ClientError as e:
+            logging.error(("Unexpected error: %s" % e))
         tables.append({ "service" : "DynamoDB:Table", "id" : table.name, "tags" : tags })
         
     return tables
@@ -68,8 +68,8 @@ def get_s3_bucket_resources():
         tags = []
         try:
             tags = s3.get_bucket_tagging(Bucket=bucket.name)['TagSet']
-        except ClientError:
-            pass
+        except ClientError as e:
+            logging.error(("Unexpected error: %s" % e))
         buckets.append({ "service" : "S3:Bucket", "id" : bucket.name, "tags" : tags })
         
     return buckets
@@ -85,8 +85,8 @@ def get_elasticache_node_resources():
         tags = []
         try:
             tags = elasticache.list_tags_for_resource(ResourceName=arn_prefix + cluster['CacheClusterId'])['TagList']
-        except ClientError:
-            pass
+        except ClientError as e:
+            logging.error(("Unexpected error: %s" % e))
         clusters.append({ "service" : "ElastiCache:Node", "id" : cluster['CacheClusterId'], "tags" : tags })
     
     return clusters
@@ -100,8 +100,8 @@ def get_elb_loadbalancer_resources():
         tags = []
         try:
             tags = elb.describe_tags(LoadBalancerNames=[loadbalancer['LoadBalancerName']])['TagDescriptions'][0]['Tags']
-        except ClientError:
-            pass
+        except ClientError as e:
+            logging.error(("Unexpected error: %s" % e))
         loadbalancers.append({ "service" : "ElasticLoadBalancing:Loadbalancer", "id" : loadbalancer['LoadBalancerName'], "tags" : tags })
     
     return loadbalancers
@@ -115,8 +115,8 @@ def get_rds_cluster_resources():
         tags = []
         try:
             tags = rds.list_tags_for_resource(ResourceName=cluster['DBClusterArn'])['TagList']
-        except ClientError:
-            pass
+        except ClientError as e:
+            logging.error(("Unexpected error: %s" % e))
         clusters.append({ "service" : "RDS:Cluster", "id" : cluster['DBClusterIdentifier'], "tags" : tags })
     
     return clusters
@@ -133,8 +133,8 @@ def get_sqs_queue_resources():
             sqs_response = []
             try:
                 sqs_response = sqs.list_queue_tags(QueueUrl=queue)['Tags']
-            except ClientError:
-                pass
+            except ClientError as e:
+                logging.error(("Unexpected error: %s" % e))
             # sqs.list_queue_tags reponse needs to be reformatted
             for r in sqs_response: tags.append({"Key": r, "Value": sqs_response[r]})
 
@@ -153,8 +153,8 @@ def get_elasticsearch_cluster_resources():
         tags = []
         try:
             tags = es.list_tags(ARN=es.describe_elasticsearch_domain(DomainName=cluster['DomainName'])['DomainStatus']['ARN'])['TagList']
-        except ClientError:
-            pass
+        except ClientError as e:
+            logging.error(("Unexpected error: %s" % e))
         clusters.append({ "service" : "ElasticSearch:Cluster", "id" : cluster['DomainName'], "tags" : tags })
     
     return clusters
@@ -194,7 +194,6 @@ def check_if_tag_exists(resource_tags,required_tag_key):
     True - If required_tag_key can be found in resource_tags
     False
     """
-    logging.info(resource_tags)
     if resource_tags is None or not required_tag_key in map(itemgetter('Key'), resource_tags):
         return False
     else:
