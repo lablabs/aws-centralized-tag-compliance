@@ -14,7 +14,7 @@ REQUIRED_TAGS_JSON = os.environ['REQUIRED_TAGS']
 SLACK_URL = os.environ['SLACK_WEBHOOK_URL']
 SLACK_CHANNEL = os.environ['SLACK_CHANNEL']
 SLACK_USERNAME = os.environ['SLACK_USERNAME']
-SLACK_EMOJI = os.environ['SLACK_EMOJI']
+SLACK_ICON_URL = os.environ['SLACK_ICON_URL']
 
 ENABLE_EC2_Instance = os.getenv('ENABLE_EC2_Instance', 'True')
 ENABLE_S3_Bucket = os.getenv('ENABLE_S3_Bucket', 'True')
@@ -233,7 +233,7 @@ def notify_slack(resource):
     payload = {
         "channel": SLACK_CHANNEL,
         "username": SLACK_USERNAME,
-        "icon_emoji": SLACK_EMOJI,
+        "icon_url": SLACK_ICON_URL,
         "attachments": []
     }
 
