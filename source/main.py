@@ -194,6 +194,7 @@ def check_if_tag_exists(resource_tags,required_tag_key):
     True - If required_tag_key can be found in resource_tags
     False
     """
+    logging.info(resource_tags)
     if resource_tags is None or not required_tag_key in map(itemgetter('Key'), resource_tags):
         return False
     else:
