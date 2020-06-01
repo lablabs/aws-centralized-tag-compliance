@@ -69,7 +69,10 @@ def get_s3_bucket_resources():
         try:
             tags = s3.get_bucket_tagging(Bucket=bucket.name)['TagSet']
         except ClientError as e:
-            logging.error(("Unexpected error: %s" % e))
+            if e.response['Error']['Code'] == 'NoSuchTagSet':
+                tags = []
+            else:
+                logging.error(("Unexpected error: %s" % e))
         buckets.append({ "service" : "S3:Bucket", "id" : bucket.name, "tags" : tags })
         
     return buckets
